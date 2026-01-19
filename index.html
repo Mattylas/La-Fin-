@@ -15,7 +15,7 @@ html,body{margin:0;padding:0;overflow:hidden;background:#040406;color:#e6e6e6;fo
   user-select:none;
   cursor:grab;
   mix-blend-mode:screen;
-  transition:filter 0.4s ease,color 0.4s ease,opacity 0.4s ease;
+  transition:filter 0.4s ease,color 0.4s ease,opacity 0.4s ease,transform 0.2s ease;
 }
 .cluster.glitch{
   font-family:monospace;
@@ -25,7 +25,6 @@ html,body{margin:0;padding:0;overflow:hidden;background:#040406;color:#e6e6e6;fo
 </head>
 <body>
 <canvas id="space"></canvas>
-
 <script src="phrases.js"></script>
 <script>
 // --- FONTS ---
@@ -54,6 +53,7 @@ class Cluster{
     this.corrupt=0;
     this.memory=0;
     this.drag=false;
+    this.unique=Math.random(); // variation unique
 
     this.el=document.createElement('div');
     this.el.className='cluster';
@@ -77,14 +77,24 @@ class Cluster{
         const dx=c.x-this.x, dy=c.y-this.y;
         const d=Math.hypot(dx,dy)+0.1;
         const force=(this.mass*c.mass)/(d*d*7000);
-        this.vx+=force*dx/d; this.vy+=force*dy/d;
-        if(d<90){
+        // Astres : attraction/répulsion
+        this.vx+=force*dx/d*(Math.random()*0.6+0.7);
+        this.vy+=force*dy/d*(Math.random()*0.6+0.7);
+
+        // Interactions à courte distance
+        if(d<100){
+          // corruption
           this.corrupt+=0.0015;
           this.memory+=0.0008;
-          bgCorruption+=0.0001;
-          if(this.corrupt>0.6 && Math.random()<0.01){
-            this.el.classList.add('glitch');
-            this.el.textContent=this.text.split('').map(c=>Math.random()<0.15?String.fromCharCode(33+Math.random()*94):c).join('');
+          bgCorruption+=0.00008;
+          // fusion/glitch aléatoire
+          if(Math.random()<0.002){
+            if(Math.random()<0.5){
+              c.text=this.text; // fusion
+            } else {
+              c.el.classList.add('glitch');
+              c.el.textContent=this.text.split('').map(ch=>Math.random()<0.15?String.fromCharCode(33+Math.random()*94):ch).join('');
+            }
           }
         }
       }
@@ -101,15 +111,29 @@ class Cluster{
 
 // --- CLUSTERS INIT ---
 let clusters=[];
-for(let i=0;i<10;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
+for(let i=0;i<12;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
 
 // --- EVENTS ---
 window.onwheel=e=>{speed+=e.deltaY<0?0.1:-0.1; speed=Math.max(0.2,Math.min(3,speed));};
-window.onkeydown=e=>{clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));};
+window.onkeydown=e=>{
+  const newCluster=new Cluster(phrases[Math.floor(Math.random()*phrases.length)]);
+  // placer dans zone moins dense
+  let tries=0;
+  while(tries<10){
+    let crowded=false;
+    for(const c of clusters){
+      if(Math.hypot(c.x-newCluster.x,c.y-newCluster.y)<100){crowded=true;break;}
+    }
+    if(!crowded) break;
+    newCluster.x=Math.random()*W; newCluster.y=Math.random()*H;
+    tries++;
+  }
+  clusters.push(newCluster);
+};
 
 // --- LOOP ---
 function loop(){
-  ctx.fillStyle=`rgba(${6+bgCorruption*40},${6+bgCorruption*10},${10+bgCorruption*60},0.12)`;
+  ctx.fillStyle=`rgba(${6+bgCorruption*50},${6+bgCorruption*20},${10+bgCorruption*80},0.12)`;
   ctx.fillRect(0,0,W,H);
   clusters.forEach(c=>c.update(clusters));
   clusters.forEach(c=>c.render());
@@ -117,9 +141,14 @@ function loop(){
 }
 loop();
 
-// --- RANDOM TITLE ---
-const titlePhrases=["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
-document.title=titlePhrases[Math.floor(Math.random()*titlePhrases.length)];
+// --- RANDOM TITLE DYNAMIQUE ---
+function randomTitle(){ 
+  const titlePhrases=["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
+  document.title=titlePhrases[Math.floor(Math.random()*titlePhrases.length)];
+}
+randomTitle();
+setInterval(randomTitle, 8000); // change toutes les 8 secondes
+
 </script>
 </body>
 </html>
