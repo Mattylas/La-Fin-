@@ -1,0 +1,26 @@
+html, body {
+  margin:0; padding:0; overflow:hidden;
+  background:#040406; color:#e6e6e6;
+  font-family:sans-serif;
+}
+
+#space { position:fixed; inset:0; }
+
+.cluster {
+  position:absolute;
+  max-width:220px;
+  padding:8px 12px;
+  border-radius:6px;
+  line-height:1.35;
+  user-select:none;
+  cursor:grab;
+  mix-blend-mode:screen;
+  transition:filter 0.3s ease,color 0.3s ease,opacity 0.3s ease,transform 0.2s ease;
+}
+
+.cluster.glitch {
+  font-family:monospace;
+  filter:contrast(1.4);
+  color:#fff;
+  text-shadow:0 0 4px #f0f,0 0 8px #0ff;
+}
