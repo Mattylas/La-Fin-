@@ -1,6 +1,6 @@
-// ---------------- PHRASES -----------------
-const phrases=[
-"La continuité n’est pas ce qui reste identique",
+// --- PHRASES ---
+const phrases = [
+  "La continuité n’est pas ce qui reste identique",
 "Eux commencèrent à appeler cela la fatigue",
 "Chaque mot que tu lis est évalué",
 "Tu es devenu le paramètre",
@@ -347,123 +347,107 @@ const phrases=[
 
 ];
 
-const fonts=["Georgia","Times New Roman","serif","Arial","sans-serif","monospace"];
+const fonts = ["Georgia","Times New Roman","serif","Arial","sans-serif","monospace"];
 
-const canvas=document.getElementById('space');
-const ctx=canvas.getContext('2d');
+const canvas = document.getElementById('space');
+const ctx = canvas.getContext('2d');
 let W,H;
-function resize(){W=canvas.width=innerWidth; H=canvas.height=innerHeight;}
-window.onresize=resize; resize();
+function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; }
+window.onresize = resize; resize();
 
-let speed=0.9, bgCorruption=0, bgPulse=0;
-let pointer={x:W/2, y:H/2};
+let speed = 1;
+let bgCorruption = 0;
 
-// ---------------- CLUSTER CLASS -----------------
-class Cluster{
-    constructor(text){
-        this.text=text;
-        this.x=Math.random()*W;
-        this.y=Math.random()*H;
-        this.vx=(Math.random()-.5)*0.6;
-        this.vy=(Math.random()-.5)*0.6;
-        this.mass=50+Math.random()*150;
-        this.font=fonts[Math.floor(Math.random()*fonts.length)];
-        this.corrupt=0;
-        this.memory=0;
-        this.drag=false;
+class Cluster {
+  constructor(text){
+    this.text = text;
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.vx = (Math.random()-.5) * 1;
+    this.vy = (Math.random()-.5) * 1;
+    this.mass = 80 + Math.random()*220;
+    this.font = fonts[Math.floor(Math.random()*fonts.length)];
+    this.corrupt = 0;
+    this.memory = 0;
+    this.drag = false;
 
-        this.el=document.createElement('div');
-        this.el.className='cluster';
-        this.el.textContent=text;
-        this.el.style.fontFamily=this.font;
-        document.body.appendChild(this.el);
+    this.el = document.createElement('div');
+    this.el.className = 'cluster';
+    this.el.textContent = text;
+    this.el.style.fontFamily = this.font;
+    document.body.appendChild(this.el);
 
-        this.bind();
+    this.bind();
+  }
+
+  bind(){
+    this.el.onmousedown = e => { this.drag=true; this.el.style.cursor='grabbing'; };
+    window.onmouseup = e => { this.drag=false; this.el.style.cursor='grab'; };
+    window.onmousemove = e => { if(this.drag){ this.x=e.clientX; this.y=e.clientY; } }
+  }
+
+  update(clusters){
+    if(!this.drag){
+      this.x += this.vx*speed;
+      this.y += this.vy*speed;
     }
 
-    bind(){
-        // touch
-        this.el.addEventListener('touchstart', e=>{ e.preventDefault(); this.drag=true; });
-        window.addEventListener('touchend', ()=>{this.drag=false;});
-        window.addEventListener('touchmove', e=>{
-            if(this.drag && e.touches[0]){
-                this.x=e.touches[0].clientX; this.y=e.touches[0].clientY;
-            } else { pointer.x=e.touches[0].clientX; pointer.y=e.touches[0].clientY; }
-        });
+    // --- Collision / Attraction ---
+    for(const c of clusters){
+      if(c !== this){
+        const dx = c.x - this.x;
+        const dy = c.y - this.y;
+        const d = Math.hypot(dx,dy)+0.1;
+        const force = (this.mass*c.mass)/(d*d*7000);
+        this.vx += force*dx/d;
+        this.vy += force*dy/d;
 
-        // mouse
-        this.el.addEventListener('mousedown', e=>{this.drag=true;});
-        window.addEventListener('mouseup', ()=>{this.drag=false;});
-        window.addEventListener('mousemove', e=>{
-            if(this.drag){this.x=e.clientX; this.y=e.clientY;}
-            else { pointer.x=e.clientX; pointer.y=e.clientY; }
-        });
-    }
-
-    update(clusters){
-        if(!this.drag){
-            // Attiré vers le pointeur
-            let dx=pointer.x-this.x, dy=pointer.y-this.y;
-            this.vx+=dx*0.0009; this.vy+=dy*0.0009;
-            this.x+=this.vx*speed; this.y+=this.vy*speed;
+        if(d < 90){
+          this.corrupt += 0.0015;
+          this.memory += 0.0008;
+          bgCorruption += 0.00015;
+          if(this.corrupt>0.6 && Math.random()<0.01){
+            this.el.classList.add('glitch');
+            this.el.textContent = this.text.split('').map(c=>Math.random()<0.15?String.fromCharCode(33+Math.random()*94):c).join('');
+          }
         }
-
-        // Interactions clusters
-        for(const c of clusters){
-            if(c!==this){
-                const dx=c.x-this.x, dy=c.y-this.y;
-                const d=Math.hypot(dx,dy)+0.1;
-                const force=(this.mass*c.mass)/(d*d*6000);
-                this.vx+=force*dx/d; this.vy+=force*dy/d;
-
-                // Fusion / corruption
-                if(d<80){
-                    this.corrupt+=0.0018; this.memory+=0.001; bgCorruption+=0.00012;
-                    if(this.corrupt>0.55 && Math.random()<0.015){
-                        this.el.classList.add('glitch');
-                        this.el.textContent=this.text.split('').map(c=>Math.random()<0.18?String.fromCharCode(33+Math.random()*94):c).join('');
-                    }
-                }
-            }
-        }
-
-        // Recomposition aléatoire
-        if(this.corrupt>0.4 && Math.random()<0.004){
-            this.el.classList.remove('glitch'); this.el.textContent=this.text;
-        }
+      }
     }
 
-    render(){
-        this.x=(this.x+W)%W; this.y=(this.y+H)%H;
-        this.el.style.transform=`translate(${this.x}px,${this.y}px)`;
-        this.el.style.opacity=Math.max(0.35,1-this.corrupt);
-        this.el.style.filter=this.memory>0.35?'blur(0.6px)':'none';
-    }
+    // --- Rebondir sur les bords ---
+    if(this.x < 0) { this.x = 0; this.vx *= -1; }
+    if(this.x > W - this.el.offsetWidth) { this.x = W - this.el.offsetWidth; this.vx *= -1; }
+    if(this.y < 0) { this.y = 0; this.vy *= -1; }
+    if(this.y > H - this.el.offsetHeight) { this.y = H - this.el.offsetHeight; this.vy *= -1; }
+  }
+
+  render(){
+    this.el.style.transform = `translate(${this.x}px,${this.y}px)`;
+    this.el.style.opacity = Math.max(0.35,1-this.corrupt);
+    if(this.memory>0.4){ this.el.style.filter='blur(0.5px)'; }
+  }
 }
 
-// ---------------- INIT CLUSTERS -----------------
-let clusters=[];
-for(let i=0;i<12;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
+let clusters = [];
+for(let i=0;i<8;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
 
-// ---------------- CONTROLES -----------------
-window.addEventListener('wheel', e=>{speed+=e.deltaY<0?0.1:-0.1; speed=Math.max(0.2,Math.min(2.5,speed));});
-window.addEventListener('keydown', e=>{clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));});
+// --- Molette pour vitesse ---
+window.onwheel = e => { speed += e.deltaY<0?0.1:-0.1; speed=Math.max(0.2,Math.min(3,speed)); };
+// --- Ajouter cluster au clavier ---
+window.onkeydown = e => { clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)])); };
 
-// ---------------- LOOP -----------------
+// --- Animation ---
 function loop(){
-    // Fond qui pulse et corruption
-    bgPulse=Math.sin(Date.now()/2000)*10;
-    ctx.fillStyle=`rgba(${6+bgCorruption*40+bgPulse},${6+bgCorruption*15},${10+bgCorruption*60+bgPulse},0.15)`;
-    ctx.fillRect(0,0,W,H);
-
-    clusters.forEach(c=>c.update(clusters));
-    clusters.forEach(c=>c.render());
-
-    requestAnimationFrame(loop);
+  ctx.fillStyle = `rgba(${6+bgCorruption*40},${6+bgCorruption*10},${10+bgCorruption*60},0.12)`;
+  ctx.fillRect(0,0,W,H);
+  clusters.forEach(c=>c.update(clusters));
+  clusters.forEach(c=>c.render());
+  requestAnimationFrame(loop);
 }
 loop();
 
-// ---------------- TITRE DYNAMIQUE -----------------
+// --- Titre dynamique ---
 const titlePhrases=["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
-function updateTitle(){document.title=titlePhrases[Math.floor(Math.random()*titlePhrases.length)];}
-updateTitle(); setInterval(updateTitle,6000);
+function updateTitle(){ document.title = titlePhrases[Math.floor(Math.random()*titlePhrases.length)]; }
+updateTitle();
+setInterval(updateTitle, 5000);
