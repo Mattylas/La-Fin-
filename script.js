@@ -1,4 +1,3 @@
-// --- PHRASES ---
 const phrases = [
   "La continuité n’est pas ce qui reste identique",
 "Eux commencèrent à appeler cela la fatigue",
@@ -347,7 +346,7 @@ const phrases = [
 
 ];
 
-const fonts = ["Georgia","Times New Roman","serif","Arial","sans-serif","monospace"];
+const fonts = ["Georgia","Arial","sans-serif","monospace"];
 
 const canvas = document.getElementById('space');
 const ctx = canvas.getContext('2d');
@@ -363,9 +362,9 @@ class Cluster {
     this.text = text;
     this.x = Math.random() * W;
     this.y = Math.random() * H;
-    this.vx = (Math.random()-.5) * 1;
-    this.vy = (Math.random()-.5) * 1;
-    this.mass = 80 + Math.random()*220;
+    this.vx = (Math.random()-.5) * 0.8;
+    this.vy = (Math.random()-.5) * 0.8;
+    this.mass = 60 + Math.random()*150;
     this.font = fonts[Math.floor(Math.random()*fonts.length)];
     this.corrupt = 0;
     this.memory = 0;
@@ -381,9 +380,20 @@ class Cluster {
   }
 
   bind(){
+    // desktop drag
     this.el.onmousedown = e => { this.drag=true; this.el.style.cursor='grabbing'; };
     window.onmouseup = e => { this.drag=false; this.el.style.cursor='grab'; };
-    window.onmousemove = e => { if(this.drag){ this.x=e.clientX; this.y=e.clientY; } }
+    window.onmousemove = e => { if(this.drag){ this.x=e.clientX; this.y=e.clientY; } };
+
+    // touch drag
+    this.el.ontouchstart = e => { this.drag=true; this.el.style.cursor='grabbing'; };
+    window.ontouchend = e => { this.drag=false; this.el.style.cursor='grab'; };
+    window.ontouchmove = e => {
+      if(this.drag && e.touches[0]){
+        this.x = e.touches[0].clientX;
+        this.y = e.touches[0].clientY;
+      }
+    };
   }
 
   update(clusters){
@@ -392,33 +402,32 @@ class Cluster {
       this.y += this.vy*speed;
     }
 
-    // --- Collision / Attraction ---
     for(const c of clusters){
       if(c !== this){
         const dx = c.x - this.x;
         const dy = c.y - this.y;
         const d = Math.hypot(dx,dy)+0.1;
-        const force = (this.mass*c.mass)/(d*d*7000);
+        const force = (this.mass*c.mass)/(d*d*6000);
         this.vx += force*dx/d;
         this.vy += force*dy/d;
 
-        if(d < 90){
-          this.corrupt += 0.0015;
-          this.memory += 0.0008;
-          bgCorruption += 0.00015;
+        if(d < 80){
+          this.corrupt += 0.001;
+          this.memory += 0.0005;
+          bgCorruption += 0.0001;
           if(this.corrupt>0.6 && Math.random()<0.01){
             this.el.classList.add('glitch');
-            this.el.textContent = this.text.split('').map(c=>Math.random()<0.15?String.fromCharCode(33+Math.random()*94):c).join('');
+            this.el.textContent = this.text.split('').map(c=>Math.random()<0.12?String.fromCharCode(33+Math.random()*94):c).join('');
           }
         }
       }
     }
 
-    // --- Rebondir sur les bords ---
-    if(this.x < 0) { this.x = 0; this.vx *= -1; }
-    if(this.x > W - this.el.offsetWidth) { this.x = W - this.el.offsetWidth; this.vx *= -1; }
-    if(this.y < 0) { this.y = 0; this.vy *= -1; }
-    if(this.y > H - this.el.offsetHeight) { this.y = H - this.el.offsetHeight; this.vy *= -1; }
+    // rebonds
+    if(this.x < 0) { this.x=0; this.vx*=-1; }
+    if(this.x > W-this.el.offsetWidth) { this.x=W-this.el.offsetWidth; this.vx*=-1; }
+    if(this.y < 0) { this.y=0; this.vy*=-1; }
+    if(this.y > H-this.el.offsetHeight) { this.y=H-this.el.offsetHeight; this.vy*=-1; }
   }
 
   render(){
@@ -428,15 +437,12 @@ class Cluster {
   }
 }
 
-let clusters = [];
-for(let i=0;i<8;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
+let clusters=[];
+for(let i=0;i<7;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
 
-// --- Molette pour vitesse ---
 window.onwheel = e => { speed += e.deltaY<0?0.1:-0.1; speed=Math.max(0.2,Math.min(3,speed)); };
-// --- Ajouter cluster au clavier ---
 window.onkeydown = e => { clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)])); };
 
-// --- Animation ---
 function loop(){
   ctx.fillStyle = `rgba(${6+bgCorruption*40},${6+bgCorruption*10},${10+bgCorruption*60},0.12)`;
   ctx.fillRect(0,0,W,H);
@@ -446,8 +452,8 @@ function loop(){
 }
 loop();
 
-// --- Titre dynamique ---
-const titlePhrases=["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
+// titre dynamique
+const titlePhrases = ["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
 function updateTitle(){ document.title = titlePhrases[Math.floor(Math.random()*titlePhrases.length)]; }
 updateTitle();
 setInterval(updateTitle, 5000);
