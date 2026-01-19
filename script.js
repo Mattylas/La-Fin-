@@ -1,3 +1,4 @@
+// --- PHRASES ---
 const phrases = [
   "La continuité n’est pas ce qui reste identique",
 "Eux commencèrent à appeler cela la fatigue",
@@ -344,6 +345,7 @@ const phrases = [
 "La prochaine fois que tu hésiteras, la prochaine fois que tu obéiras, la prochaine fois que tu te diras « je n’ai pas le choix »; c’est là que l’Agence opère le mieux.",
 "Ne te trompe pas de porte, tu l’as déjà fait"
 
+  // … ajoute ici toutes les phrases que tu veux
 ];
 
 const fonts = ["Georgia","Arial","sans-serif","monospace"];
@@ -356,22 +358,33 @@ window.onresize = resize; resize();
 
 let speed = 1;
 let bgCorruption = 0;
+let pointer = {x:null,y:null};
 
-class Cluster {
+// --- Interactions tactiles et souris ---
+canvas.addEventListener('touchmove', e => {
+  pointer.x = e.touches[0].clientX;
+  pointer.y = e.touches[0].clientY;
+});
+canvas.addEventListener('touchend', e => { pointer.x=null; pointer.y=null; });
+canvas.addEventListener('mousemove', e => { pointer.x=e.clientX; pointer.y=e.clientY; });
+canvas.addEventListener('mouseleave', e => { pointer.x=null; pointer.y=null; });
+
+// --- Cluster Class ---
+class Cluster{
   constructor(text){
     this.text = text;
-    this.x = Math.random() * W;
-    this.y = Math.random() * H;
-    this.vx = (Math.random()-.5) * 0.8;
-    this.vy = (Math.random()-.5) * 0.8;
-    this.mass = 60 + Math.random()*150;
+    this.x = Math.random()*W;
+    this.y = Math.random()*H;
+    this.vx = (Math.random()-.5)*0.8;
+    this.vy = (Math.random()-.5)*0.8;
+    this.mass = 60+Math.random()*150;
     this.font = fonts[Math.floor(Math.random()*fonts.length)];
     this.corrupt = 0;
     this.memory = 0;
     this.drag = false;
 
     this.el = document.createElement('div');
-    this.el.className = 'cluster';
+    this.el.className='cluster';
     this.el.textContent = text;
     this.el.style.fontFamily = this.font;
     document.body.appendChild(this.el);
@@ -380,20 +393,11 @@ class Cluster {
   }
 
   bind(){
-    // desktop drag
-    this.el.onmousedown = e => { this.drag=true; this.el.style.cursor='grabbing'; };
-    window.onmouseup = e => { this.drag=false; this.el.style.cursor='grab'; };
-    window.onmousemove = e => { if(this.drag){ this.x=e.clientX; this.y=e.clientY; } };
-
-    // touch drag
-    this.el.ontouchstart = e => { this.drag=true; this.el.style.cursor='grabbing'; };
-    window.ontouchend = e => { this.drag=false; this.el.style.cursor='grab'; };
-    window.ontouchmove = e => {
-      if(this.drag && e.touches[0]){
-        this.x = e.touches[0].clientX;
-        this.y = e.touches[0].clientY;
-      }
-    };
+    this.el.onmousedown = ()=>{ this.drag=true; this.el.style.cursor='grabbing'; };
+    window.onmouseup = ()=>{ this.drag=false; this.el.style.cursor='grab'; };
+    window.onmousemove = e=>{ if(this.drag){ this.x=e.clientX; this.y=e.clientY; } };
+    this.el.ontouchstart = e=>{ this.drag=true; this.el.style.cursor='grabbing'; };
+    window.ontouchend = ()=>{ this.drag=false; this.el.style.cursor='grab'; };
   }
 
   update(clusters){
@@ -402,16 +406,27 @@ class Cluster {
       this.y += this.vy*speed;
     }
 
+    // interaction magnétique avec le doigt
+    if(pointer.x !== null && pointer.y !== null){
+      let dx = pointer.x - this.x;
+      let dy = pointer.y - this.y;
+      let dist = Math.hypot(dx,dy)+0.1;
+      let force = Math.min(500/dist,0.7);
+      this.vx += force*dx/dist;
+      this.vy += force*dy/dist;
+    }
+
+    // collisions entre clusters
     for(const c of clusters){
-      if(c !== this){
+      if(c!==this){
         const dx = c.x - this.x;
         const dy = c.y - this.y;
         const d = Math.hypot(dx,dy)+0.1;
-        const force = (this.mass*c.mass)/(d*d*6000);
-        this.vx += force*dx/d;
-        this.vy += force*dy/d;
+        const f = (this.mass*c.mass)/(d*d*6000);
+        this.vx += f*dx/d;
+        this.vy += f*dy/d;
 
-        if(d < 80){
+        if(d < 70){
           this.corrupt += 0.001;
           this.memory += 0.0005;
           bgCorruption += 0.0001;
@@ -423,11 +438,11 @@ class Cluster {
       }
     }
 
-    // rebonds
-    if(this.x < 0) { this.x=0; this.vx*=-1; }
-    if(this.x > W-this.el.offsetWidth) { this.x=W-this.el.offsetWidth; this.vx*=-1; }
-    if(this.y < 0) { this.y=0; this.vy*=-1; }
-    if(this.y > H-this.el.offsetHeight) { this.y=H-this.el.offsetHeight; this.vy*=-1; }
+    // rebonds aux bords
+    if(this.x < 0){ this.x=0; this.vx*=-1; }
+    if(this.x > W-this.el.offsetWidth){ this.x=W-this.el.offsetWidth; this.vx*=-1; }
+    if(this.y < 0){ this.y=0; this.vy*=-1; }
+    if(this.y > H-this.el.offsetHeight){ this.y=H-this.el.offsetHeight; this.vy*=-1; }
   }
 
   render(){
@@ -437,22 +452,28 @@ class Cluster {
   }
 }
 
+// --- Création clusters ---
 let clusters=[];
-for(let i=0;i<7;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
+for(let i=0;i<8;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
 
+// --- Scrolling et clavier ---
 window.onwheel = e => { speed += e.deltaY<0?0.1:-0.1; speed=Math.max(0.2,Math.min(3,speed)); };
 window.onkeydown = e => { clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)])); };
 
+// --- Loop ---
 function loop(){
-  ctx.fillStyle = `rgba(${6+bgCorruption*40},${6+bgCorruption*10},${10+bgCorruption*60},0.12)`;
+  // fond unifié, subtil changement noir -> gris profond
+  let base = 4 + Math.sin(Date.now()/3000)*15 + bgCorruption*20;
+  ctx.fillStyle = `rgba(${base},${base},${base+6},0.12)`;
   ctx.fillRect(0,0,W,H);
+
   clusters.forEach(c=>c.update(clusters));
   clusters.forEach(c=>c.render());
   requestAnimationFrame(loop);
 }
 loop();
 
-// titre dynamique
+// --- titre dynamique ---
 const titlePhrases = ["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
 function updateTitle(){ document.title = titlePhrases[Math.floor(Math.random()*titlePhrases.length)]; }
 updateTitle();
