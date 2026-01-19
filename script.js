@@ -345,126 +345,129 @@ const phrases = [
 "La prochaine fois que tu hésiteras, la prochaine fois que tu obéiras, la prochaine fois que tu te diras « je n’ai pas le choix »; c’est là que l’Agence opère le mieux.",
 "Ne te trompe pas de porte, tu l’as déjà fait"
 
-  // … ajoute ici toutes les phrases que tu veux
 ];
 
-const fonts = ["Georgia","Arial","sans-serif","monospace"];
+// --- POLICES ---
+const fonts = ["Georgia","Times New Roman","serif","Arial","sans-serif","monospace"];
 
+// --- CANVAS ---
 const canvas = document.getElementById('space');
 const ctx = canvas.getContext('2d');
 let W,H;
-function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; }
-window.onresize = resize; resize();
+function resize(){W=canvas.width=innerWidth; H=canvas.height=innerHeight;}
+window.onresize=resize; resize();
 
-let speed = 1;
-let bgCorruption = 0;
-let pointer = {x:null,y:null};
+// --- VITESSE ET CORRUPTION ---
+let speed=1, bgCorruption=0;
 
-// --- Interactions tactiles et souris ---
-canvas.addEventListener('touchmove', e => {
-  pointer.x = e.touches[0].clientX;
-  pointer.y = e.touches[0].clientY;
-});
-canvas.addEventListener('touchend', e => { pointer.x=null; pointer.y=null; });
-canvas.addEventListener('mousemove', e => { pointer.x=e.clientX; pointer.y=e.clientY; });
-canvas.addEventListener('mouseleave', e => { pointer.x=null; pointer.y=null; });
-
-// --- Cluster Class ---
-class Cluster{
+// --- CLUSTER CLASS ---
+class Cluster {
   constructor(text){
-    this.text = text;
-    this.x = Math.random()*W;
-    this.y = Math.random()*H;
-    this.vx = (Math.random()-.5)*0.8;
-    this.vy = (Math.random()-.5)*0.8;
-    this.mass = 60+Math.random()*150;
-    this.font = fonts[Math.floor(Math.random()*fonts.length)];
-    this.corrupt = 0;
-    this.memory = 0;
-    this.drag = false;
+    this.text=text;
+    this.x=Math.random()*W;
+    this.y=Math.random()*H;
+    this.vx=(Math.random()-0.5)*0.8;
+    this.vy=(Math.random()-0.5)*0.8;
+    this.mass=80+Math.random()*220;
+    this.font=fonts[Math.floor(Math.random()*fonts.length)];
+    this.corrupt=0;
+    this.memory=0;
+    this.drag=false;
 
-    this.el = document.createElement('div');
+    this.el=document.createElement('div');
     this.el.className='cluster';
-    this.el.textContent = text;
-    this.el.style.fontFamily = this.font;
+    this.el.textContent=text;
+    this.el.style.fontFamily=this.font;
     document.body.appendChild(this.el);
 
     this.bind();
+    this.adjustSize();
   }
 
   bind(){
-    this.el.onmousedown = ()=>{ this.drag=true; this.el.style.cursor='grabbing'; };
-    window.onmouseup = ()=>{ this.drag=false; this.el.style.cursor='grab'; };
-    window.onmousemove = e=>{ if(this.drag){ this.x=e.clientX; this.y=e.clientY; } };
-    this.el.ontouchstart = e=>{ this.drag=true; this.el.style.cursor='grabbing'; };
-    window.ontouchend = ()=>{ this.drag=false; this.el.style.cursor='grab'; };
+    this.el.onmousedown = ()=>{ this.drag=true; this.el.style.cursor='grabbing'; }
+    window.onmouseup = ()=>{ this.drag=false; this.el.style.cursor='grab'; }
+    window.onmousemove = e => { if(this.drag){ this.x=e.clientX; this.y=e.clientY; } }
+
+    // touch support
+    this.el.ontouchstart = e => { this.drag=true; this.el.style.cursor='grabbing'; e.preventDefault();}
+    window.ontouchend = e => { this.drag=false; this.el.style.cursor='grab'; }
+    window.ontouchmove = e => { if(this.drag && e.touches[0]){ this.x=e.touches[0].clientX; this.y=e.touches[0].clientY; e.preventDefault(); } }
+  }
+
+  adjustSize(){
+    const isMobile = window.innerWidth < 768;
+    if(isMobile){
+      this.el.style.fontSize='18px';
+      this.mass *= 1.2;
+      this.vx *= 0.6; this.vy *= 0.6;
+      this.el.style.maxWidth='80vw';
+    } else {
+      this.el.style.fontSize='14px';
+      this.el.style.maxWidth='300px';
+    }
   }
 
   update(clusters){
-    if(!this.drag){
-      this.x += this.vx*speed;
-      this.y += this.vy*speed;
-    }
+    if(!this.drag){this.x+=this.vx*speed; this.y+=this.vy*speed;}
 
-    // interaction magnétique avec le doigt
-    if(pointer.x !== null && pointer.y !== null){
-      let dx = pointer.x - this.x;
-      let dy = pointer.y - this.y;
-      let dist = Math.hypot(dx,dy)+0.1;
-      let force = Math.min(500/dist,0.7);
-      this.vx += force*dx/dist;
-      this.vy += force*dy/dist;
-    }
-
-    // collisions entre clusters
     for(const c of clusters){
       if(c!==this){
-        const dx = c.x - this.x;
-        const dy = c.y - this.y;
-        const d = Math.hypot(dx,dy)+0.1;
-        const f = (this.mass*c.mass)/(d*d*6000);
-        this.vx += f*dx/d;
-        this.vy += f*dy/d;
+        let dx=c.x-this.x, dy=c.y-this.y;
+        let d=Math.hypot(dx,dy)+0.1;
+        let force=(this.mass*c.mass)/(d*d*7000);
+        this.vx += force*dx/d; this.vy += force*dy/d;
 
-        if(d < 70){
-          this.corrupt += 0.001;
-          this.memory += 0.0005;
-          bgCorruption += 0.0001;
+        // collisions
+        if(d<90){
+          this.corrupt += 0.0015;
+          this.memory += 0.0008;
+          bgCorruption += 0.00015;
+
+          // glitch
           if(this.corrupt>0.6 && Math.random()<0.01){
             this.el.classList.add('glitch');
-            this.el.textContent = this.text.split('').map(c=>Math.random()<0.12?String.fromCharCode(33+Math.random()*94):c).join('');
+            this.el.textContent=this.text.split('').map(c=>Math.random()<0.15?String.fromCharCode(33+Math.random()*94):c).join('');
           }
         }
       }
     }
 
-    // rebonds aux bords
-    if(this.x < 0){ this.x=0; this.vx*=-1; }
-    if(this.x > W-this.el.offsetWidth){ this.x=W-this.el.offsetWidth; this.vx*=-1; }
-    if(this.y < 0){ this.y=0; this.vy*=-1; }
-    if(this.y > H-this.el.offsetHeight){ this.y=H-this.el.offsetHeight; this.vy*=-1; }
+    // Keep inside screen
+    this.x = Math.min(Math.max(this.x, 0), W-100);
+    this.y = Math.min(Math.max(this.y, 0), H-50);
   }
 
   render(){
     this.el.style.transform = `translate(${this.x}px,${this.y}px)`;
-    this.el.style.opacity = Math.max(0.35,1-this.corrupt);
-    if(this.memory>0.4){ this.el.style.filter='blur(0.5px)'; }
+    this.el.style.opacity = Math.max(0.35, 1-this.corrupt);
+    this.el.style.filter = this.memory>0.4 ? 'blur(0.5px)' : 'none';
   }
 }
 
-// --- Création clusters ---
+// --- CLUSTERS INIT ---
 let clusters=[];
-for(let i=0;i<8;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
+for(let i=0;i<9;i++) clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)]));
 
-// --- Scrolling et clavier ---
-window.onwheel = e => { speed += e.deltaY<0?0.1:-0.1; speed=Math.max(0.2,Math.min(3,speed)); };
+// --- ADAPTATIVITÉ DYNAMIQUE ---
+function adaptClusters(){
+  clusters.forEach(c=>c.adjustSize());
+}
+window.addEventListener('resize', adaptClusters);
+
+// --- MOLETTE VITESSE ---
+window.onwheel = e => {
+  speed += e.deltaY<0?0.1:-0.1;
+  speed=Math.max(0.2, Math.min(3,speed));
+};
+
+// --- NOUVEAUX CLUSTERS ---
 window.onkeydown = e => { clusters.push(new Cluster(phrases[Math.floor(Math.random()*phrases.length)])); };
 
-// --- Loop ---
+// --- BOUCLE PRINCIPALE ---
 function loop(){
-  // fond unifié, subtil changement noir -> gris profond
-  let base = 4 + Math.sin(Date.now()/3000)*15 + bgCorruption*20;
-  ctx.fillStyle = `rgba(${base},${base},${base+6},0.12)`;
+  // fond unifié
+  ctx.fillStyle=`rgba(${6+bgCorruption*40},${6+bgCorruption*10},${10+bgCorruption*60},0.12)`;
   ctx.fillRect(0,0,W,H);
 
   clusters.forEach(c=>c.update(clusters));
@@ -473,8 +476,6 @@ function loop(){
 }
 loop();
 
-// --- titre dynamique ---
-const titlePhrases = ["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
-function updateTitle(){ document.title = titlePhrases[Math.floor(Math.random()*titlePhrases.length)]; }
-updateTitle();
-setInterval(updateTitle, 5000);
+// --- TITRE DYNAMIQUE ---
+const titlePhrases=["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
+document.title=titlePhrases[Math.floor(Math.random()*titlePhrases.length)];
