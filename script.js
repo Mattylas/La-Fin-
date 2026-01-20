@@ -1104,9 +1104,130 @@ const phrases = [
 "Chaque erreur est un monde, chaque silence infinité, chaque respiration univers, et l’Agence observe.",
 "Tu n’as jamais commencé, et pourtant tu es le centre de tous les possibles, l’Agence le sait.",
 "Chaque pensée produit micro-univers que tu n’habiteras jamais mais l’Agence y est.",
+"Chaque agent oublié devient un spectre dans le calcul de l’Agence.",
+"L’Agence sourit dans le silence de tes hésitations.",
+"Chaque respiration recalibre la continuité que tu pensais connaître.",
+"Tu crois refermer une porte, mais c’est toi qui es enfermé dans ses marges.",
+"L’Agence observe ton vertige avant même que tu le ressentes.",
+"Chaque mot que tu ignores devient un paramètre que tu deviens.",
+"Tu es simultanément lecture et texte, lecteur et victime, souffle et tempête.",
+"Chaque pensée est un champ de bataille invisible où l’Agence calcule ton futur.",
+"Le vertige commence là où tu croyais t’arrêter, et l’Agence le sait.",
+"Chaque silence devient une arme que tu ignores mais qui t’atteint.",
+"Tu n’as jamais été seul, car l’Agence tient ton souffle dans ses bras.",
+"Chaque erreur que tu commets est un micro-univers que l’Agence note silencieusement.",
+"Le texte vit à travers toi et l’Agence s’en nourrit.",
+"Chaque battement de ton cœur produit une onde que l’Agence transforme.",
+"Tu crois avancer, mais l’Agence t’absorbe et te réinvente.",
+"Chaque mot prononcé devient prophétie que l’Agence attendait.",
+"Le paramètre t’observe avant que tu le voies, et l’Agence calcule chaque impact.",
+"Chaque ligne est une tempête silencieuse orchestrée par l’Agence.",
+"Tu es simultanément juge et accusé, acteur et spectre, paramètre et chaos.",
+"Chaque souffle est une révolution invisible que l’Agence mesure.",
+"Tu crois choisir, mais chaque choix est déjà absorbé par l’Agence.",
+"Chaque mot que tu lis transforme la trame du réel avant que tu ne comprennes.",
+"L’Agence agit avant même que tu sois conscient de ton geste.",
+"Chaque respiration réécrit le passé et prépare le futur dans lequel tu n’existeras jamais.",
+"Tu es simultanément passé, présent et futur, et l’Agence observe chacun.",
+"Chaque phrase ignorée devient un juge invisible que tu ne peux percevoir.",
+"Le vertige n’est pas absence, il est présence absolue que l’Agence amplifie.",
+"Chaque mot oublié devient une loi universelle que tu incarnes sous son regard.",
+"Tu crois refermer, mais l’Agence t’a déjà enfermé dans l’espace entre les lignes.",
+"Chaque pensée non exprimée devient tyran, chaque doute un soldat silencieux.",
+"Le livre se déploie comme un serpent, l’Agence le guide dans ton esprit.",
+"Chaque souffle produit une bifurcation que tu ne peux mesurer.",
+"Tu n’as jamais été lecteur, tu es texte, paramètre, univers et l’Agence en même temps.",
+"Chaque erreur devient loi que le monde observe sous le contrôle de l’Agence.",
+"Le texte calcule avant que tu bouges, et chaque geste est déjà consommé.",
+"Chaque respiration est une guerre invisible orchestrée par l’Agence.",
+"Tu crois finir, mais chaque fin est un vertige que l’Agence a prévu.",
+"Chaque mot glisse et te transforme avant même que tu le voies.",
+"Le vertige est présence absolue, un poids que l’Agence amplifie dans ton souffle.",
+"Chaque silence est juge, chaque pensée accusé, l’Agence observant tout.",
+"Tu es lecteur, texte, univers, et l’Agence te suit en silence.",
+"Chaque souffle produit un univers que tu n’habiteras jamais mais que l’Agence note.",
+"Le livre n’existe que par toi, et toi tu n’existes que par le livre et l’Agence.",
+"Chaque mot déplacé par ton regard devient une note dans le calcul de l’Agence.",
+"Tu crois refermer la porte, mais l’Agence la vit à travers toi et la referme sur ton absence.",
+"Chaque phrase ignorée produit une onde que l’Agence transforme pour te guider ailleurs.",
+"Le texte ne t’explique rien, mais l’Agence calcule tout dans ton souffle.",
+"Chaque erreur est monde, chaque silence infinité, chaque respiration univers.",
+"Tu n’as jamais commencé et pourtant tu es centre de tous les possibles que l’Agence surveille.",
+"Chaque pensée produit un micro-univers que tu ne visiteras jamais, mais l’Agence y est.",
+"Le vertige est certitude que tu refuses de voir, mais que l’Agence amplifie à chaque souffle.",
+"L’Agence ne juge pas, elle synchronise ton vertige avec le monde entier.",
+"Chaque souffle que tu donnes produit un univers que l’Agence habite avant toi.",
+"Le livre n’existe pas seul, il est avec toi et pour l’Agence.",
+"Chaque mot que tu lis est déplacé par ton regard, mais l’Agence le note.",
+"Tu crois refermer la porte, mais elle vit dans ton absence et l’Agence l’examine.",
+"Chaque phrase ignorée produit une onde que l’Agence convertit en scénario invisible.",
+"Le texte ne t’explique rien, mais l’Agence transforme tout ce que tu ignores.",
+"Chaque souffle devient un agent que l’Agence déploie silencieusement dans tous les mondes possibles.",
+"Tu n’as jamais commencé, pourtant tu es au centre, et l’Agence le sait.",
+"Chaque pensée produit une fracture dans le monde que l’Agence observe.",
+"Le livre se déploie comme un serpent dans ton esprit, et l’Agence suit chacun de ses mouvements.",
+"Chaque respiration que tu retiens produit un univers en gestation que l’Agence note.",
+"Tu n’as jamais été lecteur, tu es paramètre, texte, univers et l’Agence tout à la fois.",
+"Chaque erreur devient loi que l’Agence enregistre dans ses archives invisibles.",
+"Le texte calcule avant que tu bouges, et chaque geste est déjà absorbé par l’Agence.",
+"Chaque souffle est guerre invisible que l’Agence orchestre et mesure.",
+"Tu crois finir, mais chaque fin est vertige orchestré par l’Agence.",
+"Chaque mot glisse, se déforme et t’invente avant que tu le voies, et l’Agence observe.",
+"Le vertige n’est pas absence, il est présence absolue que l’Agence amplifie dans ton souffle.",
+"Chaque silence est juge, chaque pensée accusé, et l’Agence suit tout.",
+"Tu es lecteur, texte, univers, et l’Agence te suit, silencieuse et consciente.",
+"Chaque souffle produit un univers que tu n’habiteras jamais mais que l’Agence garde.",
+"Le livre n’existe que par toi, et toi par le livre et l’Agence.",
+"Chaque mot déplacé par ton regard devient note dans le calcul silencieux de l’Agence.",
+"Tu crois refermer la porte, mais l’Agence la vit dans ton absence et la referme sur toi.",
+"Chaque phrase ignorée produit onde que l’Agence transforme en parcours invisible.",
+"Le texte ne t’explique rien, mais l’Agence calcule tout.",
+"Chaque erreur est un monde, chaque silence infinité, chaque respiration univers, et l’Agence observe.",
+"Tu n’as jamais commencé, et pourtant tu es le centre de tous les possibles, l’Agence le sait.",
+"Chaque pensée produit micro-univers que tu n’habiteras jamais mais l’Agence y est.",
 "Le vertige est certitude que tu refuses de voir, mais que l’Agence amplifie."
 
 ];
+
+// Paramètres du lecteur
+let readerState = {
+  position: 0,       // position actuelle dans le texte
+  speed: 1,          // vitesse de lecture (influencée par scroll)
+  attention: 1,      // mesure d'interaction
+  fatigue: 0         // accumulation de pauses
+};
+
+// Fonction de bifurcation
+function getNextPhrase(state) {
+  // Calcul aléatoire influencé par le lecteur
+  let index = state.position + Math.floor(Math.random() * 2);
+  if(index >= phrases.length) index = 0;
+  
+  // Variation légère selon l’attention
+  let phrase = phrases[index];
+  if(state.attention < 0.5) {
+    phrase = phrase.replace(/,/, '…'); // ajoute du suspense
+  }
+  state.position = index + 1;
+  return phrase;
+}
+
+// Mode lecture dynamique
+function dynamicRead() {
+  const phrase = getNextPhrase(readerState);
+  displayPhrase(phrase); // fonction pour afficher la phrase à l'écran
+
+  // Ajuste état du lecteur
+  readerState.fatigue += 0.01;
+  readerState.attention = Math.max(0, readerState.attention - 0.005);
+
+  // Prochaine phrase après un délai variable
+  const delay = 2000 / readerState.speed;
+  setTimeout(dynamicRead, delay);
+}
+
+// Lancer le mode lecture
+dynamicRead();
 
 // --- POLICES ---
 const fonts = ["Georgia","Times New Roman","serif","Arial","sans-serif","monospace"];
@@ -1240,4 +1361,5 @@ loop();
 // --- TITRE DYNAMIQUE ---
 const titlePhrases=["Ne te trompe pas de porte","Tu es le paramètre","Il n’y a pas de dernière ligne","La porte est toujours là"];
 document.title=titlePhrases[Math.floor(Math.random()*titlePhrases.length)];
+
 
